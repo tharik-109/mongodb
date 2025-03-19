@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        TF_VAR_region = 'us-east-1'  // N.Virginia Region
+        TF_VAR_region = 'us-east-1'  // Mumbai Region
         TF_VAR_key_name = 'mykeypairus'  
         TF_IN_AUTOMATION = 'true'
         ANSIBLE_HOST_KEY_CHECKING = 'False'
@@ -30,7 +30,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('mongodb-terraform') {
+                    dir('') {
                         sh '''
                             export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                             export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
@@ -44,7 +44,7 @@ pipeline {
         stage('Terraform Validate & Plan') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('mongodb-terraform') {
+                    dir('') {
                         sh 'terraform validate'
                         sh 'terraform plan'
                     }
@@ -69,7 +69,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('mongodb-terraform') {
+                    dir('') {
                         sh 'terraform apply -auto-approve'
                     }
                 }
@@ -82,7 +82,7 @@ pipeline {
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-mongodb', keyFileVariable: 'SSH_KEY')]) {
-                    dir('mongodb-ansible') {
+                    dir('') {
                         sh '''
                             echo "Waiting for EC2 to initialize..."
                             sleep 60
@@ -100,7 +100,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('mongodb-terraform') {
+                    dir('') {
                         sh 'terraform destroy -auto-approve'
                     }
                 }
