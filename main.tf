@@ -164,6 +164,13 @@ resource "aws_security_group" "db_sg" {
     security_groups = [aws_security_group.bas_sg.id]  # Only Bastion can access
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["${aws_instance.bastion.private_ip}/32"]  # Replace with your IP for security
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -185,7 +192,7 @@ resource "aws_instance" "bastion" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public1.id
   security_groups = [aws_security_group.bas_sg.id]
-  key_name      = "mykeypairus"  # Replace with your SSH key
+  key_name      = "mykeypairusvir"  # Replace with your SSH key
 
   tags = {
     Name = "Bastion-Host"
@@ -201,7 +208,7 @@ resource "aws_instance" "mongodb-ser" {
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.private1.id
   security_groups = [aws_security_group.db_sg.id]
-  key_name      = "mykeypairus"  # Replace with your SSH key
+  key_name      = "mykeypairusvir"  # Replace with your SSH key
 
   tags = {
     Name = "MongoDB-Server"
