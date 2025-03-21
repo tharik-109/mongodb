@@ -1,6 +1,6 @@
 ---
 - name: Install MongoDB on Ubuntu
-  hosts: _MongoDB_Server  # Use the dynamic tag group
+  hosts: MongoDB-Server  # Use the dynamic tag group
   become: yes
   remote_user: ubuntu
   tasks:
