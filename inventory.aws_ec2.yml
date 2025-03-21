@@ -8,7 +8,7 @@ keyed_groups:
   - key: tags.Name
     prefix: ""
 hostnames:
-  - private-ip-address
+  - private_ip_address
 compose:
   ansible_host: private_ip_address
   ansible_user: ubuntu
