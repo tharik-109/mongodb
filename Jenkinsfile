@@ -81,27 +81,24 @@ pipeline {
                 expression { return env.ACTION == 'Apply' }
             }
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-mongodb', keyFileVariable: 'SSH_KEY')]) {
-                    script {
-                        sh '''
-                            echo "Waiting for EC2 to initialize..."
-                            sleep 60
+                script {
+                    sh '''
+                        echo "Waiting for EC2 to initialize..."
+                        sleep 60
 
-                            # Set up correct permissions for the SSH key
-                            chmod 600 "${SSH_KEY}"
+                        # Ensure correct permissions for the SSH key
+                        sudo chmod 400 /var/lib/jenkins/mykeypairusvir.pem
 
-                            # Set Ansible environment variables
-                            export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
-                            export ANSIBLE_HOST_KEY_CHECKING=False
+                        # Set Ansible environment variables
+                        export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
+                        export ANSIBLE_HOST_KEY_CHECKING=False
 
-                            # Run Ansible playbook with dynamic inventory
-                            ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/${SSH_KEY}" -u ubuntu -vvv
-                        '''
-                    }
+                        # Run Ansible playbook with dynamic inventory
+                        ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/mykeypairusvir.pem" -u ubuntu -vvv
+                    '''
                 }
             }
         }
-
 
         stage('Terraform Destroy') {
             when {
