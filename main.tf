@@ -168,7 +168,7 @@ resource "aws_security_group" "db_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${aws_instance.bastion.private_ip}/32"]  # Replace with your IP for security
+    cidr_blocks = ["0.0.0.0/0"]  # Replace with your IP for security
   }
 
   egress {
@@ -204,7 +204,7 @@ resource "aws_instance" "bastion" {
 # ==============================
 
 resource "aws_instance" "mongodb-ser" {
-  ami           = "ami-08b5b3a93ed654d19"  # Replace with correct AMI
+  ami           = "ami-0f9de6e2d2f067fca"  # Replace with correct AMI
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.private1.id
   security_groups = [aws_security_group.db_sg.id]
@@ -213,6 +213,48 @@ resource "aws_instance" "mongodb-ser" {
   tags = {
     Name = "MongoDB-Server"
   }
+}
+
+# ==============================
+# 🔗 VPC Peering
+# ==============================
+
+# Fetch default VPC
+data "aws_vpc" "default" {
+  default = true
+}
+
+# Create VPC Peering Connection
+resource "aws_vpc_peering_connection" "peer_mongodb_default" {
+  vpc_id      = aws_vpc.mongodb.id
+  peer_vpc_id = data.aws_vpc.default.id
+  auto_accept = true
+
+  tags = {
+    Name = "mongodb-to-default-peering"
+  }
+}
+
+# Update Route Table for MongoDB VPC to allow traffic to Default VPC
+resource "aws_route" "mongodb_to_default" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = data.aws_vpc.default.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer_mongodb_default.id
+}
+
+# Update Route Table for Default VPC to allow traffic to MongoDB VPC
+resource "aws_route" "default_to_mongodb" {
+  route_table_id         = data.aws_vpc.default.main_route_table_id
+  destination_cidr_block = aws_vpc.mongodb.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.peer_mongodb_default.id
+}
+
+# ==============================
+# 📤 Output (For Easy Access)
+# ==============================
+
+output "vpc_peering_id" {
+  value = aws_vpc_peering_connection.peer_mongodb_default.id
 }
 
 # ==============================
