@@ -200,7 +200,7 @@ resource "aws_instance" "bastion" {
 
    # Provisioner to copy the private key to the Bastion Host
   provisioner "file" {
-    source      = "/home/ubuntu/mykeypairusvir.pem"  # Local private key file
+    source      = "/var/lib/jenkins/mykeypairusvir.pem"  # Local private key file
     destination = "/home/ubuntu/mykeypairusvir.pem"
   }
 
