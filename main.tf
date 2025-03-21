@@ -215,7 +215,7 @@ resource "aws_instance" "bastion" {
   connection {
     type        = "ssh"
     user        = "ubuntu"
-    private_key = file("/home/ubuntu/mykeypairusvir.pem")
+    private_key = file("/var/lib/jenkins/mykeypairusvir.pem")
     host        = self.public_ip
   }
 
