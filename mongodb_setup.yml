@@ -1,22 +1,46 @@
-- name: Install MongoDB
-  hosts: tag_MongoDB-Server  # Use the dynamic tag group
+---
+- name: Install MongoDB on Ubuntu
+  hosts: _MongoDB_Server  # Use the dynamic tag group
   become: yes
+  remote_user: ubuntu
   tasks:
-    - name: Add MongoDB Repository
-      shell: |
-        wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
-        echo "deb http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-      args:
-        warn: false
+    - name: Import MongoDB public GPG key
+      apt_key:
+        url: https://www.mongodb.org/static/pgp/server-7.0.asc
+        state: present
+
+    - name: Add MongoDB repository for Ubuntu
+      apt_repository:
+        repo: "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/7.0 multiverse"
+        state: present
+        filename: "mongodb-org-7.0"
+
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install required dependencies
+      apt:
+        name: ["gnupg", "curl"]
+        state: present
 
     - name: Install MongoDB
       apt:
         name: mongodb-org
         state: present
-        update_cache: yes
 
-    - name: Start and Enable MongoDB
+    - name: Start and Enable MongoDB service
       systemd:
         name: mongod
         state: started
         enabled: yes
+
+    - name: Verify MongoDB service status
+      command: systemctl status mongod
+      register: mongodb_status
+      changed_when: false
+
+    - name: Display MongoDB status output
+      debug:
+        var: mongodb_status.stdout_lines
