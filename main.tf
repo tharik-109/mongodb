@@ -197,6 +197,28 @@ resource "aws_instance" "bastion" {
   tags = {
     Name = "Bastion-Host"
   }
+
+   # Provisioner to copy the private key to the Bastion Host
+  provisioner "file" {
+    source      = "/home/ubuntu/mykeypairusvir.pem"  # Local private key file
+    destination = "/home/ubuntu/mykeypairusvir.pem"
+  }
+
+  # Provisioner to set permissions on the copied file
+  provisioner "remote-exec" {
+    inline = [
+      "chmod 400 /home/ubuntu/mykeypairusvir.pem"
+    ]
+  }
+
+  # Connection block to define how Terraform connects to the instance
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = file("/home/ubuntu/mykeypairusvir.pem")
+    host        = self.public_ip
+  }
+
 }
 
 # ==============================
