@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        TF_VAR_region = 'us-east-1'  // Mumbai Region
-        TF_VAR_key_name = 'mykeypairus'  
+        TF_VAR_region = 'us-east-1'  
+        TF_VAR_key_name = 'mykeypairusvir'  
         TF_IN_AUTOMATION = 'true'
         ANSIBLE_HOST_KEY_CHECKING = 'False'
         ANSIBLE_REMOTE_USER = 'ubuntu'
