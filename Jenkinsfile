@@ -82,17 +82,26 @@ pipeline {
             }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ssh-key-mongodb', keyFileVariable: 'SSH_KEY')]) {
-                    dir('') {
+                    script {
                         sh '''
                             echo "Waiting for EC2 to initialize..."
                             sleep 60
+
+                            # Set up correct permissions for the SSH key
                             chmod 600 "${SSH_KEY}"
-                            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="${SSH_KEY}" -u ubuntu
+
+                            # Set Ansible environment variables
+                            export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
+                            export ANSIBLE_HOST_KEY_CHECKING=False
+
+                            # Run Ansible playbook with dynamic inventory
+                            ansible-playbook -i inventory.aws_ec2.yaml mongodb_setup.yml --private-key="${SSH_KEY}" -u ubuntu
                         '''
                     }
                 }
             }
         }
+
 
         stage('Terraform Destroy') {
             when {
