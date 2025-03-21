@@ -168,7 +168,7 @@ resource "aws_security_group" "db_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Replace with your IP for security
+    cidr_blocks = ["172.31.1.42/20"]  # Replace with your IP for security
   }
 
   egress {
