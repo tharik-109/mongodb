@@ -138,6 +138,7 @@ pipeline {
                     </div>
                 """,
                 to: 'mtharik121@gmail.com',
+                from: 'mtharik121@gmail.com',
                 mimeType: 'text/html'
             )
         }
@@ -174,6 +175,7 @@ pipeline {
                     </div>
                 """,
                 to: 'mtharik121@gmail.com',
+                from: 'mtharik121@gmail.com',
                 mimeType: 'text/html'
             )
         }
