@@ -226,14 +226,15 @@ resource "aws_instance" "bastion" {
 # ==============================
 
 resource "aws_instance" "mongodb-ser" {
+  count         = 2
   ami           = "ami-0f9de6e2d2f067fca"  # Replace with correct AMI
   instance_type = "t2.micro"
-  subnet_id     = aws_subnet.private1.id
+  subnet_id     = element([aws_subnet.private1.id, aws_subnet.private2.id], count.index)
   security_groups = [aws_security_group.db_sg.id]
   key_name      = "mykeypairusvir"  # Replace with your SSH key
 
   tags = {
-    Name = "MongoDB-Server"
+    Name = "MongoDB-Server-${count.index + 1}"
   }
 }
 
