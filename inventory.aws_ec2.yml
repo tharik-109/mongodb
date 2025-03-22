@@ -3,7 +3,9 @@ plugin: amazon.aws.aws_ec2
 regions:
   - us-east-1  
 filters:
-  "tag:Name": "MongoDB-Server"
+  "tag:Name": 
+    - "MongoDB-Server-1"
+    - "MongoDB-Server-2"
   instance-state-name: "running"
 keyed_groups:
   - key: tags.Name
