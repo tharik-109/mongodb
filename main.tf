@@ -49,7 +49,7 @@ resource "aws_subnet" "private1" {
 
 resource "aws_subnet" "private2" {
   vpc_id            = aws_vpc.mongodb.id
-  cidr_block        = "172.31.8.0/20"
+  cidr_block        = "172.31.64.0/20"
   availability_zone = "us-east-1b"
 
   tags = {
