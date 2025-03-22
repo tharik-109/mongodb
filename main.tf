@@ -250,7 +250,7 @@ data "aws_vpc" "default" {
 resource "aws_vpc_peering_connection" "peer_mongodb_default" {
   vpc_id      = aws_vpc.mongodb.id
   peer_vpc_id = data.aws_vpc.default.id
-  auto_accept = true
+  auto_accept = false
 
   tags = {
     Name = "mongodb-to-default-peering"
