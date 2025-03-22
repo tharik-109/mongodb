@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        terraform 'Terraform'  
-        ansible 'Ansible'  
+        terraform 'Terraform'
+        ansible 'Ansible'
     }
 
     environment {
-        TF_VAR_region = 'us-east-1'  
-        TF_VAR_key_name = 'mykeypairusvir'  
+        TF_VAR_region = 'us-east-1'
+        TF_VAR_key_name = 'mykeypairusvir'
         TF_IN_AUTOMATION = 'true'
         ANSIBLE_HOST_KEY_CHECKING = 'False'
         ANSIBLE_REMOTE_USER = 'ubuntu'
@@ -30,13 +30,11 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('') {
-                        sh '''
-                            export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
-                            export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                            terraform init
-                        '''
-                    }
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        terraform init
+                    '''
                 }
             }
         }
@@ -44,10 +42,8 @@ pipeline {
         stage('Terraform Validate & Plan') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('') {
-                        sh 'terraform validate'
-                        sh 'terraform plan'
-                    }
+                    sh 'terraform validate'
+                    sh 'terraform plan'
                 }
             }
         }
@@ -69,9 +65,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('') {
-                        sh 'terraform apply -auto-approve'
-                    }
+                    sh 'terraform apply -auto-approve'
                 }
             }
         }
@@ -81,22 +75,17 @@ pipeline {
                 expression { return env.ACTION == 'Apply' }
             }
             steps {
-                script {
-                    sh '''
-                        echo "Waiting for EC2 to initialize..."
-                        sleep 60
-
-                        # Ensure correct permissions for the SSH key
-                        sudo chmod 400 /var/lib/jenkins/mykeypairusvir.pem
-
-                        # Set Ansible environment variables
-                        export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
-                        export ANSIBLE_HOST_KEY_CHECKING=False
-
-                        # Run Ansible playbook with dynamic inventory
-                        ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/mykeypairusvir.pem" -u ubuntu -vvv
-                    '''
-                }
+                sh '''
+                    echo "Waiting for EC2 to initialize..."
+                    sleep 60
+                    
+                    sudo chmod 400 /var/lib/jenkins/mykeypairusvir.pem
+                    
+                    export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
+                    export ANSIBLE_HOST_KEY_CHECKING=False
+                    
+                    ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/mykeypairusvir.pem" -u ubuntu -vvv
+                '''
             }
         }
 
@@ -106,9 +95,7 @@ pipeline {
             }
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
-                    dir('') {
-                        sh 'terraform destroy -auto-approve'
-                    }
+                    sh 'terraform destroy -auto-approve'
                 }
             }
         }
@@ -119,19 +106,73 @@ pipeline {
             echo ':gear: Pipeline execution completed.'
         }
         success {
-            slackSend channel: '#general', message: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER} completed!", color: 'good'
+            slackSend(
+                channel: '#general',
+                attachments: [
+                    [
+                        color: 'good',
+                        title: "✅ SUCCESS: ${env.JOB_NAME} (Build #${env.BUILD_NUMBER})",
+                        text: """
+                            *Job Name:* ${env.JOB_NAME}
+                            *Build No:* ${env.BUILD_NUMBER}
+                            *Triggered By:* [Started by user admin]
+                            
+                            This job has completed successfully. 🎉
+                            *🔗 <${env.BUILD_URL}|Check logs here>*
+                        """,
+                        mrkdwn_in: ["text"]
+                    ]
+                ]
+            )
+
             emailext(
-                subject: "Jenkins Pipeline SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "<p>Pipeline <b>${env.JOB_NAME}</b> completed successfully.</p><p><a href='${env.BUILD_URL}'>View Build</a></p>",
+                subject: "✅ SUCCESS: ${env.JOB_NAME} (Build #${env.BUILD_NUMBER})",
+                body: """
+                    <div style="border: 1px solid #c3e6cb; background-color: #d4edda; padding: 10px; border-radius: 5px;">
+                        <h2 style="color: #155724;">✅ Jenkins Job SUCCESS</h2>
+                        <p><b>Job Name:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build No:</b> ${env.BUILD_NUMBER}</p>
+                        <p><b>Triggered By:</b> [Started by user admin]</p>
+                        <p>This job has completed successfully. 🎉</p>
+                        <p>🔗 <a href='${env.BUILD_URL}' style="color: #155724;">Check logs here</a></p>
+                    </div>
+                """,
                 to: 'mtharik121@gmail.com',
                 mimeType: 'text/html'
             )
         }
         failure {
-            slackSend channel: '#general', message: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER} failed!", color: 'danger'
+            slackSend(
+                channel: '#general',
+                attachments: [
+                    [
+                        color: 'danger',
+                        title: "❌ FAILURE: ${env.JOB_NAME} (Build #${env.BUILD_NUMBER})",
+                        text: """
+                            *Job Name:* ${env.JOB_NAME}
+                            *Build No:* ${env.BUILD_NUMBER}
+                            *Triggered By:* [Started by user admin]
+                            
+                            This job has failed. ❗
+                            *🔗 <${env.BUILD_URL}|Check logs here>*
+                        """,
+                        mrkdwn_in: ["text"]
+                    ]
+                ]
+            )
+
             emailext(
-                subject: "Jenkins Pipeline FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "<p>Pipeline <b>${env.JOB_NAME}</b> failed.</p><p><a href='${env.BUILD_URL}'>View Build</a></p>",
+                subject: "❌ FAILURE: ${env.JOB_NAME} (Build #${env.BUILD_NUMBER})",
+                body: """
+                    <div style="border: 1px solid #f5c6cb; background-color: #f8d7da; padding: 10px; border-radius: 5px;">
+                        <h2 style="color: #721c24;">❌ Jenkins Job FAILED</h2>
+                        <p><b>Job Name:</b> ${env.JOB_NAME}</p>
+                        <p><b>Build No:</b> ${env.BUILD_NUMBER}</p>
+                        <p><b>Triggered By:</b> [Started by user admin]</p>
+                        <p>This job has failed. ❗</p>
+                        <p>🔗 <a href='${env.BUILD_URL}' style="color: #721c24;">Check logs here</a></p>
+                    </div>
+                """,
                 to: 'mtharik121@gmail.com',
                 mimeType: 'text/html'
             )
