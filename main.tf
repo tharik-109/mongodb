@@ -279,10 +279,6 @@ output "vpc_peering_id" {
   value = aws_vpc_peering_connection.peer_mongodb_default.id
 }
 
-# ==============================
-# 📤 Output (For Easy Access)
-# ==============================
-
 output "bastion_public_ip" {
   value = aws_instance.bastion.public_ip
 }
