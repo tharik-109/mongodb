@@ -285,5 +285,5 @@ output "bastion_public_ip" {
 }
 
 output "mongodb_private_ip" {
-  value = aws_instance.mongodb-ser.private_ip
+  value = aws_instance.mongodb-ser[*].private_ip
 }
