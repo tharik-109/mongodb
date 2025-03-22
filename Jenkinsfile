@@ -84,7 +84,7 @@ pipeline {
                     export ANSIBLE_CONFIG='/var/lib/jenkins/ansible.cfg'
                     export ANSIBLE_HOST_KEY_CHECKING=False
                     
-                    ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/mykeypairusvir.pem" -u ubuntu -vvv
+                    ansible-playbook -i inventory.aws_ec2.yml mongodb_setup.yml --private-key="/var/lib/jenkins/mykeypairusvir.pem" -u ubuntu 
                 '''
             }
         }
