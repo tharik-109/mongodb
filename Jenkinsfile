@@ -137,9 +137,9 @@ pipeline {
                         <p>🔗 <a href='${env.BUILD_URL}' style="color: #155724;">Check logs here</a></p>
                     </div>
                 """,
-                to: 'mtharik109@gmail.com',
+                to: 'mtharik109@gmail.com, mtharik121@gmail.com',
                 mimeType: 'text/html',
-                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]
+                recipientProviders: [[$class: 'RequesterRecipientProvider']]
             )
         }
         failure {
@@ -174,9 +174,9 @@ pipeline {
                         <p>🔗 <a href='${env.BUILD_URL}' style="color: #721c24;">Check logs here</a></p>
                     </div>
                 """,
-                to: 'mtharik109@gmail.com',
+                to: 'mtharik109@gmail.com, mtharik121@gmail.com',
                 mimeType: 'text/html',
-                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]
+                recipientProviders: [[$class: 'RequesterRecipientProvider']]
             )
         }
     }
