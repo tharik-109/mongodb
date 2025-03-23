@@ -138,7 +138,8 @@ pipeline {
                     </div>
                 """,
                 to: 'mtharik109@gmail.com',
-                mimeType: 'text/html'
+                mimeType: 'text/html',
+                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]
             )
         }
         failure {
@@ -174,7 +175,8 @@ pipeline {
                     </div>
                 """,
                 to: 'mtharik109@gmail.com',
-                mimeType: 'text/html'
+                mimeType: 'text/html',
+                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']]
             )
         }
     }
